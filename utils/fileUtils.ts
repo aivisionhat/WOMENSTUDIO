@@ -1,0 +1,31 @@
+export const fileToDataURL = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+    reader.readAsDataURL(file);
+  });
+};
+
+export const dataURLtoFile = (dataurl: string, filename: string): File => {
+    const arr = dataurl.split(',');
+    
+    const mimeMatch = arr[0]?.match(/:(.*?);/);
+    if (!mimeMatch) {
+        throw new Error('Invalid data URL: MIME type not found.');
+    }
+    const mime = mimeMatch[1];
+    
+    if (arr[1] === undefined) {
+        throw new Error('Invalid data URL: Base64 data not found.');
+    }
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+
+    return new File([u8arr], filename, {type:mime});
+};
